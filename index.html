@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Facial</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <!-- The stage fills the window; everything else floats above it as glass. -->
+    <div id="viewport">
+      <canvas id="view"></canvas>
+    </div>
+
+    <header id="topbar" class="chrome">
+      <div class="bar glass">
+        <div class="brand">Facial</div>
+        <nav id="menubar" aria-label="主菜单"></nav>
+      </div>
+      <div class="bar glass" role="toolbar" aria-label="界面">
+        <button id="toggle-scene" class="tool" data-icon="sidebar" aria-pressed="true" title="场景面板"></button>
+        <button id="toggle-timeline" class="tool" data-icon="tracks" aria-pressed="true" title="时间线轨道"></button>
+        <button id="toggle-stats" class="tool" data-icon="stats" aria-pressed="false" title="性能信息"></button>
+        <span class="bar-sep"></span>
+        <button id="open-settings" class="tool" data-icon="sliders" popovertarget="view-settings" title="显示与物理"></button>
+        <button id="hide-ui" class="tool" data-icon="expand" title="隐藏界面，只看舞台（H）"></button>
+      </div>
+    </header>
+
+    <aside id="sidebar" class="glass chrome" aria-label="场景">
+      <section id="scene"></section>
+    </aside>
+
+    <div id="view-settings" class="glass-surface" popover>
+      <h2>显示</h2>
+      <label class="setting"><span>描边</span><input type="checkbox" class="switch" id="edges" checked /></label>
+      <label class="setting"><span>自阴影</span><input type="checkbox" class="switch" id="self-shadow" checked /></label>
+      <label class="setting"><span>地面阴影</span><input type="checkbox" class="switch" id="ground-shadow" checked /></label>
+      <label class="setting"><span>深色背景</span><input type="checkbox" class="switch" id="dark-bg" /></label>
+      <label class="setting" title="以更高分辨率渲染再缩小，边缘更平滑，GPU 开销按倍率的平方增加">
+        <span>渲染倍率</span>
+        <select id="render-scale">
+          <option value="1" selected>1×</option>
+          <option value="1.5">1.5×</option>
+          <option value="2">2×（更平滑）</option>
+        </select>
+      </label>
+      <div class="setting">
+        <span>共享 toon</span>
+        <button id="reset-toons" class="btn small" disabled title="清除已导入的 MMD toon01–10.bmp">恢复内置</button>
+      </div>
+
+      <h2>灯光</h2>
+      <div id="lighting"></div>
+
+      <h2>后期</h2>
+      <label class="setting"><span>泛光</span><input type="checkbox" class="switch" id="bloom" /></label>
+      <label class="setting sub"><span>强度</span><input type="range" id="bloom-strength" min="0" max="2" step="0.05" value="0.6" /></label>
+      <label class="setting"><span>景深</span><input type="checkbox" class="switch" id="dof" /></label>
+      <label class="setting sub" title="焦点在镜头注视的位置"><span>虚化</span><input type="range" id="dof-strength" min="0" max="1" step="0.05" value="0.4" /></label>
+      <label class="setting">
+        <span>色调映射</span>
+        <select id="tone-mapping">
+          <option value="none" selected>关闭（与 MMD 一致）</option>
+          <option value="aces">ACES 电影感</option>
+        </select>
+      </label>
+
+      <h2>物理</h2>
+      <label class="setting">
+        <span>运行位置</span>
+        <select id="physics-mode" title="物理运行位置">
+          <option value="worker" selected>Worker 线程</option>
+          <option value="main">主线程</option>
+          <option value="off">关闭</option>
+        </select>
+      </label>
+      <label class="setting" title="蒙皮之后把布料、头发的顶点从身体的刚体里推出来，减少腿穿出裙子这类穿模">
+        <span>布料防穿模</span><input type="checkbox" class="switch" id="cloth-collision" checked />
+      </label>
+      <div class="setting">
+        <span>头发 / 裙子穿模时</span>
+        <button id="reset-physics" class="btn small" title="把刚体重置到当前姿势并稳定下来（R）">重置物理</button>
+      </div>
+
+      <h2>线框（当前模型）</h2>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" id="wf-0" /><i style="--c: #4d9eff"></i>跟随骨骼</label>
+        <label class="chip"><input type="checkbox" id="wf-1" /><i style="--c: #ff5c42"></i>物理</label>
+        <label class="chip"><input type="checkbox" id="wf-2" /><i style="--c: #73eb59"></i>物理 + 骨骼</label>
+        <label class="chip"><input type="checkbox" id="wf-3" /><i style="--c: #ffd633"></i>关节</label>
+      </div>
+    </div>
+
+    <pre id="info" class="glass chrome" hidden></pre>
+
+    <footer id="timeline" class="glass chrome" aria-label="时间线"></footer>
+
+    <button id="show-ui" class="glass" data-icon="collapse" title="显示界面（H）"></button>
+    <div id="fatal" class="glass" hidden></div>
+    <div id="drop-overlay"><div class="glass">松开以导入模型、动作、镜头、音频或工程</div></div>
+    <audio id="audio" hidden></audio>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
